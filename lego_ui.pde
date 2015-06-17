@@ -8,8 +8,11 @@ final int COLS   = WIDTH / C_WIDTH;
 
 final int MENU_WIDTH = 200;
 
-boolean [][] board = new boolean[ROWS][COLS];
+final int[] blockSize = new int[] {2, 3, 4, 6};
+final int[] blockNum  = new int[] {6, 6, 4, 4};
+int[] useNum;
 
+boolean [][] board = new boolean[ROWS][COLS];
 
 Mode mode;
 
@@ -20,6 +23,11 @@ class Block {
     this.y = y;
     this.left = this.right = x;
   }
+
+  int getSize() {
+    return this.right - this.left + 1;
+  }
+
 }
 
 
@@ -28,6 +36,8 @@ void setup() {
   size(WIDTH + MENU_WIDTH, HEIGHT);
 
   mode = Mode.WAITING;
+
+  useNum = new int[4];
 
   for (int i = 0; i < ROWS; ++i) {
     for (int j = 0; j < COLS; ++j) {
@@ -44,18 +54,18 @@ ArrayList<Block> blocks = new ArrayList<Block>();
 void drawBlock(Block block, int r, int g, int b) {
   int y = block.y * C_HEIGHT;
   int x = block.left * C_WIDTH;
-  int l = block.right - block.left + 1;
+  int sz = block.getSize();
   fill(r, g, b);
   stroke(0);
   strokeWeight(3);
-  rect(x, y, C_WIDTH * l, C_HEIGHT);
+  rect(x, y, C_WIDTH * sz, C_HEIGHT);
 }
 
 void drawBoard() {
 
   // draw Grid
-  for (int i = 0; i < ROWS; i++) {
-    for (int j = 0; j < COLS; j++) {
+  for (int i = 0; i < ROWS; ++i) {
+    for (int j = 0; j < COLS; ++j) {
       int y = i*C_HEIGHT;
       int x = j*C_WIDTH;
       fill(255);
@@ -138,31 +148,37 @@ void creating() {
         sBlock.right = right;
       }
     }
-  } else {
-
-    blocks.add(sBlock);
-    sBlock = null;
-    mode = Mode.WAITING;
+    return;
   }
+
+  Block b = sBlock;
+  sBlock = null;
+  mode = Mode.WAITING;
+  int sz = b.getSize();
+
+  for (int i = 0; i < blockSize.length; ++i) {
+    if (sz == blockSize[i] && useNum[i] < blockNum[i]) {
+      blocks.add(b);
+      return;
+    }
+  }
+
+  println("illegal size!!: " + sz);
+
 }
 
-final int[] blockSize = new int[] {2, 3, 4, 6};
-final int[] blockNum  = new int[]{6, 6, 4, 4};
-int[] useNum;
 
 void countBlocks() {
   useNum = new int[4];
 
   for(Block b: blocks) {
-    int sz = b.right - b.left + 1;
+    int sz = b.getSize();
     for (int i = 0; i < 4; ++i) {
       if (blockSize[i] == sz) {
         useNum[i] += 1;
         continue;
       }
     }
-    // illegal size
-
   }
 }
 
@@ -229,6 +245,8 @@ void draw() {
   case CREATING:
     creating();
     break;
+  default:
+    println("Error: "+mode);
   }
   drawTextField();
   drawBoard();
