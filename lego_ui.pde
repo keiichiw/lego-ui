@@ -11,8 +11,7 @@ final int MENU_WIDTH = 200;
 boolean [][] board = new boolean[ROWS][COLS];
 
 
-
-Mode mode = Mode.WAIT_MODE;
+Mode mode;
 
 class Block {
   int y;
@@ -27,6 +26,8 @@ class Block {
 void setup() {
 
   size(WIDTH + MENU_WIDTH, HEIGHT);
+
+  mode = Mode.WAITING;
 
   for (int i = 0; i < ROWS; ++i) {
     for (int j = 0; j < COLS; ++j) {
@@ -106,7 +107,7 @@ void getPoint() {
   int y = mouseY / C_HEIGHT;
 
   if (valid(x, y) && !board[y][x]) {
-    mode = Mode.WRITE_MODE;
+    mode = Mode.CREATING;
     sBlock = new Block(x, y);
   }
 }
@@ -120,7 +121,7 @@ boolean overlap(int l, int r, int y) {
   return false;
 }
 
-void writing() {
+void creating() {
   if (mousePressed && mouseButton == LEFT) { // writing
     int x = mouseX / C_WIDTH;
     int y = mouseY / C_HEIGHT;
@@ -138,9 +139,10 @@ void writing() {
       }
     }
   } else {
+
     blocks.add(sBlock);
     sBlock = null;
-    mode = Mode.WAIT_MODE;
+    mode = Mode.WAITING;
   }
 }
 
@@ -215,7 +217,7 @@ void removeBlock() {
 void draw() {
 
   switch (mode) {
-  case WAIT_MODE:
+  case WAITING:
     if (mousePressed) {
       if (mouseButton == LEFT) {
         getPoint();
@@ -224,11 +226,10 @@ void draw() {
       }
     }
     break;
-  case WRITE_MODE:
-    writing();
+  case CREATING:
+    creating();
     break;
   }
   drawTextField();
   drawBoard();
 }
-
