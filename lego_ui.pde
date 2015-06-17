@@ -2,9 +2,12 @@ final int HEIGHT = 480;
 final int C_HEIGHT = 60;
 final int ROWS   = HEIGHT / C_HEIGHT;
 
-final int WIDTH  = 800;
-final int C_WIDTH = 40;
+final int WIDTH  = 840;
+final int C_WIDTH = 42;
 final int COLS   = WIDTH / C_WIDTH;
+
+final int STUD_H = C_HEIGHT / 5;
+final int STUD_W = C_WIDTH  / 3;
 
 final int MENU_WIDTH = 200;
 
@@ -15,6 +18,8 @@ int[] useNum;
 boolean [][] board = new boolean[ROWS][COLS];
 
 Mode mode;
+Block sBlock;
+ArrayList<Block> blocks = new ArrayList<Block>();
 
 class Block {
   int y;
@@ -47,10 +52,6 @@ void setup() {
 
 }
 
-Block sBlock;
-ArrayList<Block> blocks = new ArrayList<Block>();
-
-
 void drawBlock(Block block, int r, int g, int b) {
   int y = block.y * C_HEIGHT;
   int x = block.left * C_WIDTH;
@@ -75,6 +76,12 @@ void drawBoard() {
     }
   }
 
+
+  // draw Grand
+  fill(0, 128, 0);
+  strokeWeight(0);
+  rect(0, HEIGHT - STUD_H, WIDTH, STUD_H);
+
   // draw Blocks
   for (int i = 0; i < blocks.size(); ++i) {
     Block b = blocks.get(i);
@@ -83,15 +90,13 @@ void drawBoard() {
       board[b.y][x] = true;
     }
   }
-  // draw stud
+  // draw studs
   for (int i = 1; i < ROWS; ++i) {
     for (int j = 0; j < COLS; ++j) {
       if (board[i][j] && !board[i-1][j]) {
-        int stub_h = C_HEIGHT / 5;
-        int stub_w = C_WIDTH  / 3;
-        int x = j * C_WIDTH + C_WIDTH / 2  - stub_w / 2;
-        int y = i * C_HEIGHT - stub_h;
-        rect(x, y, stub_w, stub_h);
+        int x = j * C_WIDTH + C_WIDTH / 2  - STUD_W / 2;
+        int y = i * C_HEIGHT - STUD_H;
+        rect(x, y, STUD_W, STUD_H);
       }
     }
   }
