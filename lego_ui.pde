@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 final int HEIGHT = 480;
 final int C_HEIGHT = 60;
 final int ROWS   = HEIGHT / C_HEIGHT;
@@ -136,6 +138,19 @@ boolean overlap(int l, int r, int y) {
   return false;
 }
 
+boolean canPlace(Block b) {
+  if (b.y == ROWS-1)
+    return true;
+  for (Block obj: blocks) {
+    if (abs(b.y - obj.y) != 1)
+      continue;
+    if (!(b.right < obj.left || obj.right < b.left)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void creating() {
   if (mousePressed && mouseButton == LEFT) { // writing
     int x = mouseX / C_WIDTH;
@@ -163,8 +178,10 @@ void creating() {
 
   for (int i = 0; i < blockSize.length; ++i) {
     if (sz == blockSize[i] && useNum[i] < blockNum[i]) {
-      blocks.add(b);
-      return;
+      if (canPlace(b)) {
+        blocks.add(b);
+        return;
+      }
     }
   }
 
@@ -215,6 +232,37 @@ void drawTextField() {
 
 }
 
+boolean canRemove(int x) {
+  boolean[] ok = new boolean[blocks.size()];
+  Arrays.fill(ok, false);
+
+  for (int i = 0; i < ok.length; ++i) {
+    if (i == x)
+      continue;
+
+    Block b = blocks.get(i);
+    if (b.y == ROWS -1) {
+      ok[i] = true;
+    } else {
+      for(int j = 0; j < blocks.size(); ++j) {
+        Block obj = blocks.get(j);
+        if (!ok[j] || abs(b.y - obj.y) != 1)
+          continue;
+        if (!(b.right < obj.left || obj.right < b.left)) {
+          ok[i] = true;
+          break;
+        }
+      }
+    }
+  }
+
+  for (int i = 0; i < ok.length; ++i) {
+    if (!ok[i] && i != x)
+      return false;
+  }
+  return true;
+}
+
 void removeBlock() {
   int x = mouseX / C_WIDTH;
   int y = mouseY / C_HEIGHT;
@@ -224,6 +272,9 @@ void removeBlock() {
   for (int i=0; i < blocks.size(); ++i) {
     Block b = blocks.get(i);
     if(b.y == y && b.left <= x && x <= b.right) {
+
+      if(!canRemove(i))
+        return;
 
       for(int j=b.left; j <= b.right; ++j) {
         board[y][j] = false;
