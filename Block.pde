@@ -1,11 +1,11 @@
 class Block {
   int y;
-  int left, right;
+  int p, left, right;
   boolean isFloating;
 
   Block(int x, int y) {
     this.y = y;
-    this.left = this.right = x;
+    this.left = this.right = this.p = x;
     this.isFloating = true;
   }
 

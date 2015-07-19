@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 class Board {
   int[] useNum;
 
@@ -7,15 +9,29 @@ class Board {
   Block sBlock;
   ArrayList<Block> blocks = new ArrayList<Block>();
 
-  Board () {
-    mode = Mode.WAITING;
+  int ground;
 
+  Board() {
+    init();
+  }
+
+  void init() {
+    mode = Mode.WAITING;
+    ground = 0;
     useNum = new int[4];
+    blocks.clear();
 
     for (int i = 0; i < ROWS; ++i) {
       for (int j = 0; j < COLS; ++j) {
         board[i][j] = false;
       }
+    }
+  }
+
+  void setGround() {
+    ground = 0;
+    for (int i = 0; i < blocks.size(); ++i) {
+      ground = max(ground, blocks.get(i).y);
     }
   }
 
@@ -38,8 +54,10 @@ class Board {
     }
 
     // check blocks placed on the ground
+    setGround();
+
     for (int i = 0; i < n; ++i) {
-      blocks.get(i).isFloating = (blocks.get(i).y != ROWS - 1);
+      blocks.get(i).isFloating = (blocks.get(i).y != ground);
     }
 
     for (int i = 0; i < n; ++i) {
@@ -75,9 +93,16 @@ class Board {
 
 
     // draw Ground
-    fill(0, 128, 0);
-    strokeWeight(0);
-    rect(0, HEIGHT - STUD_H, WIDTH, STUD_H);
+    if (ground == ROWS - 1) {
+      fill(0, 128, 0);
+      strokeWeight(0);
+      rect(0, HEIGHT - 5, WIDTH, 5);
+    } else if (ground != 0) {
+      stroke(0, 128, 0);
+      strokeWeight(5);
+      int g_line = ground + 1;
+      line(0, g_line * C_HEIGHT, WIDTH, g_line * C_HEIGHT);
+    }
 
     // block floating check
     floatingCheck();
@@ -93,7 +118,15 @@ class Board {
 
     // draw incomplete block
     if (sBlock != null) {
-      sBlock.draw_rgb(180, 180, 180, board);
+      int col = 256;
+      int sz = sBlock.getSize();
+      for (int i = 0; i < 4; ++i) {
+        int r = blockNum[i] - useNum[i];
+        if (sz == blockSize[i] && r > 0) {
+          col = 100;
+        }
+      }
+      sBlock.draw_rgb(col, col, col, board);
     }
   }
 
@@ -132,8 +165,8 @@ class Board {
         return;
       }
       if (y == sBlock.y) {
-        int left = min(sBlock.left,  x);
-        int right= max(sBlock.right, x);
+        int left = min(sBlock.p, x);
+        int right= max(sBlock.p, x);
 
         if (!overlap(left, right, y)) {
           sBlock.left  = left;
@@ -154,9 +187,6 @@ class Board {
         return;
       }
     }
-
-    println("illegal size!!: " + sz);
-
   }
 
 
@@ -184,23 +214,27 @@ class Board {
 
     // count Blocks
     countBlocks();
-    // show remains
-    fill(0);
-    PFont font = createFont("Takao",20,true);
-    textFont(font);
-    for (int i=0; i < 4; ++i) {
-      text("1x"+ blockSize[i] +
-           ": 残り" + (blockNum[i] - useNum[i]) + "個",
-           WIDTH + 20, 20 + i * 40, 200, 40);
+
+    fill(#ffffff, 0);
+    stroke(255, 0, 0);
+    strokeWeight(2);
+    int sz = (sBlock != null) ? sBlock.getSize() : -1;
+    for (int i = 0; i < 4; ++i) {
+      if (sz == blockSize[i]) {
+        rect(WIDTH + 18, 18 + i * 40, 118, 24);
+      }
     }
 
-    /*
-    // message box
-    fill(255,255,200);
-    stroke(200);
-    strokeWeight(10);
-    rect(WIDTH, HEIGHT/2, MENU_WIDTH, HEIGHT/2);
-    */
+    // show remains
+    PFont font = createFont("Takao",20,true);
+    textFont(font);
+    for (int i = 0; i < 4; ++i) {
+      int r = blockNum[i] - useNum[i];
+      fill(0 < r ? 0 : 255);
+      text("1x"+ blockSize[i] +
+           ": 残り" + r + "個",
+           WIDTH + 20, 20 + i * 40, 200, 40);
+    }
   }
 
   void removeBlock() {
