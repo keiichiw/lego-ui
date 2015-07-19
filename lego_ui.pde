@@ -17,6 +17,9 @@ final int[] blockNum  = new int[] {6, 6, 4, 4};
 Board board;
 Button r_button;
 
+final int WAITING  = 0;
+final int CREATING = 1;
+
 void setup() {
 
   size(WIDTH + MENU_WIDTH, HEIGHT);

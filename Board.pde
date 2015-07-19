@@ -5,7 +5,7 @@ class Board {
 
   boolean [][] board = new boolean[ROWS][COLS];
 
-  Mode mode;
+  int mode;
   Block sBlock;
   ArrayList<Block> blocks = new ArrayList<Block>();
 
@@ -16,7 +16,7 @@ class Board {
   }
 
   void init() {
-    mode = Mode.WAITING;
+    mode = WAITING;
     ground = 0;
     useNum = new int[4];
     blocks.clear();
@@ -80,20 +80,21 @@ class Board {
   void drawBoard() {
 
     // draw Grid
+    fill(255);
+    stroke(0);
+    strokeWeight(1);
+    rect(0, 0, WIDTH, HEIGHT);
     for (int i = 0; i < ROWS; ++i) {
       for (int j = 0; j < COLS; ++j) {
         int y = i*C_HEIGHT;
         int x = j*C_WIDTH;
-        fill(255);
-        stroke(0);
-        strokeWeight(1);
         rect(x, y, C_WIDTH, C_HEIGHT);
       }
     }
 
 
     // draw Ground
-    if (ground == ROWS - 1) {
+    if (ground == ROWS - 1 || blocks.size() == 0) {
       fill(0, 128, 0);
       strokeWeight(0);
       rect(0, HEIGHT - 5, WIDTH, 5);
@@ -138,11 +139,11 @@ class Board {
 
 
   void getPoint() {
-    int x = mouseX / C_WIDTH;
-    int y = mouseY / C_HEIGHT;
+    int x = (int) (mouseX / C_WIDTH);
+    int y = (int) (mouseY / C_HEIGHT);
 
     if (valid(x, y) && !board[y][x]) {
-      mode = Mode.CREATING;
+      mode = CREATING;
       sBlock = new Block(x, y);
     }
   }
@@ -158,8 +159,8 @@ class Board {
 
   void creating() {
     if (mousePressed && mouseButton == LEFT) { // writing
-      int x = mouseX / C_WIDTH;
-      int y = mouseY / C_HEIGHT;
+      int x = (int) (mouseX / C_WIDTH);
+      int y = (int) (mouseY / C_HEIGHT);
 
       if (!valid(x, y)) {
         return;
@@ -178,7 +179,7 @@ class Board {
 
     Block b = sBlock;
     sBlock = null;
-    mode = Mode.WAITING;
+    mode = WAITING;
     int sz = b.getSize();
 
     for (int i = 0; i < blockSize.length; ++i) {
@@ -221,7 +222,7 @@ class Board {
     int sz = (sBlock != null) ? sBlock.getSize() : -1;
     for (int i = 0; i < 4; ++i) {
       if (sz == blockSize[i]) {
-        rect(WIDTH + 18, 18 + i * 40, 118, 24);
+        rect(WIDTH + 18, 18 + i * 40, 122, 24);
       }
     }
 
@@ -238,8 +239,8 @@ class Board {
   }
 
   void removeBlock() {
-    int x = mouseX / C_WIDTH;
-    int y = mouseY / C_HEIGHT;
+    int x = (int) (mouseX / C_WIDTH);
+    int y = (int) (mouseY / C_HEIGHT);
     if (!valid(x, y)) return;
     if (!board[y][x]) return;
 

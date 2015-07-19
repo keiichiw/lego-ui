@@ -21,7 +21,7 @@ class Button {
     textFont(font);
     fill(0);
     int l = label.length() * font_size;
-    text(label, x + 4 + (w - l) / 2, y +  h - (h - font_size) / 2);
+    text(label, x + 6 + (w - l) / 2, y +  h - (h - font_size) / 2);
   }
 
   boolean mouseOn() {
