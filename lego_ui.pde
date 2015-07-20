@@ -1,4 +1,4 @@
-final int HEIGHT = 480;
+final int HEIGHT = 600;
 final int C_HEIGHT = 60;
 final int ROWS   = HEIGHT / C_HEIGHT;
 
